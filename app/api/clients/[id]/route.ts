@@ -6,13 +6,14 @@ import { clientSchema } from '@/validators/client.schema';
 
 export async function GET(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     const session = await getServerSession(authOptions);
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     try {
-        const client = await ClientService.getClientById(params.id);
+        const { id } = await params;
+        const client = await ClientService.getClientById(id);
         if (!client) return NextResponse.json({ error: 'Client not found' }, { status: 404 });
         return NextResponse.json(client);
     } catch (error) {
@@ -22,15 +23,16 @@ export async function GET(
 
 export async function PUT(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     const session = await getServerSession(authOptions);
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     try {
+        const { id } = await params;
         const body = await req.json();
         const validatedData = clientSchema.partial().parse(body);
-        const client = await ClientService.updateClient(params.id, validatedData);
+        const client = await ClientService.updateClient(id, validatedData);
         if (!client) return NextResponse.json({ error: 'Client not found' }, { status: 404 });
         return NextResponse.json(client);
     } catch (error: any) {
@@ -43,13 +45,14 @@ export async function PUT(
 
 export async function DELETE(
     req: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     const session = await getServerSession(authOptions);
     if (!session) return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
 
     try {
-        const client = await ClientService.deleteClient(params.id);
+        const { id } = await params;
+        const client = await ClientService.deleteClient(id);
         if (!client) return NextResponse.json({ error: 'Client not found' }, { status: 404 });
         return NextResponse.json({ message: 'Client deleted successfully' });
     } catch (error) {
