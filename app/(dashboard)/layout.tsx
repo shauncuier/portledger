@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
+import Image from 'next/image';
 import {
     LayoutDashboard,
     Users,
@@ -56,8 +57,14 @@ export default function DashboardLayout({
                     {/* Logo */}
                     <div className="h-20 flex items-center justify-between px-6 border-b border-white/10">
                         <div className={cn('flex items-center', !isSidebarOpen && 'justify-center w-full')}>
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
-                                <span className="text-xl font-bold">C</span>
+                            <div className="w-10 h-10 rounded-xl overflow-hidden shadow-lg shadow-indigo-500/30">
+                                <Image
+                                    src="/logo.png"
+                                    alt="Logo"
+                                    width={40}
+                                    height={40}
+                                    className="w-full h-full object-cover"
+                                />
                             </div>
                             <span
                                 className={cn(
@@ -135,8 +142,14 @@ export default function DashboardLayout({
                             'flex items-center p-3 rounded-xl bg-white/5',
                             !isSidebarOpen && 'justify-center'
                         )}>
-                            <div className="h-10 w-10 rounded-full bg-gradient-to-br from-indigo-400 to-purple-500 flex items-center justify-center font-bold text-sm shadow-lg">
-                                {session?.user?.name?.charAt(0) || 'U'}
+                            <div className="h-10 w-10 rounded-full overflow-hidden shadow-lg border border-white/20">
+                                <Image
+                                    src="/avatar.png"
+                                    alt="Avatar"
+                                    width={40}
+                                    height={40}
+                                    className="w-full h-full object-cover"
+                                />
                             </div>
                             <div className={cn('ml-3 flex-1', !isSidebarOpen && 'hidden')}>
                                 <p className="text-sm font-semibold truncate">{session?.user?.name || 'User'}</p>
@@ -182,8 +195,14 @@ export default function DashboardLayout({
                                 onClick={() => setIsProfileOpen(!isProfileOpen)}
                                 className="flex items-center space-x-3 p-2 rounded-xl hover:bg-slate-100 transition-colors"
                             >
-                                <div className="h-10 w-10 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white font-bold shadow-lg shadow-indigo-200">
-                                    {session?.user?.name?.charAt(0) || 'U'}
+                                <div className="h-10 w-10 rounded-full overflow-hidden shadow-lg shadow-indigo-200 border border-slate-200">
+                                    <Image
+                                        src="/avatar.png"
+                                        alt="Avatar"
+                                        width={40}
+                                        height={40}
+                                        className="w-full h-full object-cover"
+                                    />
                                 </div>
                                 <div className="text-left hidden sm:block">
                                     <p className="text-sm font-semibold text-slate-800">{session?.user?.name}</p>

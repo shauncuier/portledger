@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { Lock, Mail, Loader2, ArrowRight } from 'lucide-react';
 
 export default function LoginPage() {
@@ -42,19 +43,35 @@ export default function LoginPage() {
             {/* Left Panel - Branding */}
             <div
                 className="hidden lg:flex lg:w-1/2 relative overflow-hidden"
-                style={{ background: 'linear-gradient(135deg, #1e1b4b 0%, #312e81 50%, #4338ca 100%)' }}
             >
+                {/* Background Banner */}
+                <Image
+                    src="/banner.png"
+                    alt="Financial Banner"
+                    fill
+                    className="object-cover"
+                    priority
+                />
+                {/* Gradient Overlay for better text readability */}
+                <div className="absolute inset-0 bg-indigo-900/60 backdrop-blur-[2px]" />
+
                 {/* Background decorations */}
-                <div className="absolute top-20 left-20 w-72 h-72 bg-white/10 rounded-full blur-3xl" />
+                <div className="absolute top-20 left-20 w-72 h-72 bg-indigo-500/20 rounded-full blur-3xl" />
                 <div className="absolute bottom-20 right-20 w-96 h-96 bg-purple-500/20 rounded-full blur-3xl" />
 
                 <div className="relative z-10 flex flex-col justify-between p-12 w-full">
                     <div>
                         <div className="flex items-center space-x-3">
-                            <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                                <span className="text-2xl font-bold text-white">C</span>
+                            <div className="w-12 h-12 rounded-xl overflow-hidden shadow-2xl">
+                                <Image
+                                    src="/logo.png"
+                                    alt="Logo"
+                                    width={48}
+                                    height={48}
+                                    className="w-full h-full object-cover"
+                                />
                             </div>
-                            <span className="text-2xl font-bold text-white">ClearLedger</span>
+                            <span className="text-2xl font-bold text-white tracking-tight">ClearLedger</span>
                         </div>
                     </div>
 
@@ -93,10 +110,16 @@ export default function LoginPage() {
                 <div className="w-full max-w-md space-y-8">
                     {/* Mobile Logo */}
                     <div className="lg:hidden flex items-center justify-center space-x-3 mb-8">
-                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-600 to-purple-600 flex items-center justify-center">
-                            <span className="text-2xl font-bold text-white">C</span>
+                        <div className="w-12 h-12 rounded-xl overflow-hidden shadow-xl">
+                            <Image
+                                src="/logo.png"
+                                alt="Logo"
+                                width={48}
+                                height={48}
+                                className="w-full h-full object-cover"
+                            />
                         </div>
-                        <span className="text-2xl font-bold text-slate-800">ClearLedger</span>
+                        <span className="text-2xl font-bold text-slate-800 tracking-tight">ClearLedger</span>
                     </div>
 
                     <div className="text-center lg:text-left">

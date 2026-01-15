@@ -10,7 +10,11 @@ export async function GET() {
 
     try {
         const clients = await ClientService.getAllClients();
-        return NextResponse.json(clients);
+
+        // Add cache headers for faster subsequent requests
+        const response = NextResponse.json(clients);
+        response.headers.set('Cache-Control', 'private, max-age=30, stale-while-revalidate=60');
+        return response;
     } catch (error) {
         return NextResponse.json({ error: 'Failed to fetch clients' }, { status: 500 });
     }

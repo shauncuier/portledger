@@ -16,6 +16,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "ClearLedger | Financial Management System",
   description: "Next-generation financial management for Clearing & Forwarding.",
+  icons: {
+    icon: '/favicon.png',
+  },
 };
 
 export default function RootLayout({
