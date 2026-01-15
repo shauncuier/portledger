@@ -12,6 +12,7 @@ export interface IUser extends Document {
     password?: string;
     role: UserRole;
     status: 'active' | 'inactive';
+    avatar?: string; // URL to profile image
     deletedAt?: Date | null;
     createdAt: Date;
     updatedAt: Date;
@@ -32,6 +33,7 @@ const UserSchema: Schema = new Schema(
             enum: ['active', 'inactive'],
             default: 'active',
         },
+        avatar: { type: String, default: '' },
         deletedAt: { type: Date, default: null },
     },
     { timestamps: true }

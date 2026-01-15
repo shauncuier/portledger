@@ -37,6 +37,7 @@ export default function SettingsPage() {
         email: session?.user?.email || '',
         phone: '+880 1234-567890',
         role: session && session.user && 'role' in session.user ? (session.user as { role?: string }).role || 'staff' : 'staff',
+        avatar: (session?.user as { avatar?: string })?.avatar || '',
     });
 
     const [company, setCompany] = useState({
@@ -108,11 +109,50 @@ export default function SettingsPage() {
                                 </div>
 
                                 <div className="flex items-center space-x-6">
-                                    <div className="w-24 h-24 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg shadow-indigo-200">
-                                        {profile.name?.charAt(0) || 'U'}
+                                    <div className="w-24 h-24 rounded-full bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center text-white text-3xl font-bold shadow-lg shadow-indigo-200 overflow-hidden">
+                                        {profile.avatar ? (
+                                            // eslint-disable-next-line @next/next/no-img-element
+                                            <img
+                                                src={profile.avatar}
+                                                alt="Avatar"
+                                                className="w-full h-full object-cover rounded-full"
+                                            />
+                                        ) : (
+                                            profile.name?.charAt(0) || 'U'
+                                        )}
                                     </div>
                                     <div>
-                                        <button className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors">
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            id="avatar-upload"
+                                            style={{ display: 'none' }}
+                                            onChange={async (e) => {
+                                                const file = e.target.files?.[0];
+                                                if (!file) return;
+                                                if (file.size > 2 * 1024 * 1024) {
+                                                    alert('File size exceeds 2MB.');
+                                                    return;
+                                                }
+                                                const formData = new FormData();
+                                                formData.append('avatar', file);
+                                                if (session && session.user && 'id' in session.user) {
+                                                    const res = await fetch(`/api/users/${(session.user as { id?: string }).id}`, {
+                                                        method: 'PATCH',
+                                                        body: formData,
+                                                    });
+                                                    if (res.ok) {
+                                                        const user = await res.json();
+                                                        setProfile((p) => ({ ...p, avatar: user.avatar }));
+                                                    }
+                                                }
+                                            }}
+                                        />
+                                        <button
+                                            className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
+                                            onClick={() => document.getElementById('avatar-upload')?.click()}
+                                            type="button"
+                                        >
                                             Change Photo
                                         </button>
                                         <p className="text-xs text-slate-500 mt-2">JPG, PNG or GIF. Max 2MB.</p>
