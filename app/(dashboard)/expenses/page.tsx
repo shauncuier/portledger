@@ -1,0 +1,155 @@
+'use client';
+
+import { useState, useEffect } from 'react';
+import {
+    Plus,
+    Search,
+    TrendingDown,
+    Calendar,
+    Tag,
+    User,
+    MoreVertical,
+    Loader2
+} from 'lucide-react';
+import { formatCurrency, formatDate } from '@/lib/utils';
+import { cn } from '@/lib/utils';
+
+interface Expense {
+  ._id: string;
+    category: string;
+    vendor_name: string;
+    amount: number;
+    payment_method: string;
+    expense_date: string;
+    note: string;
+}
+
+export default function ExpensesPage() {
+    const [expenses, setExpenses] = useState<Expense[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState('');
+
+    useEffect(() => {
+        fetchExpenses();
+    }, []);
+
+    const fetchExpenses = async () => {
+        try {
+            const res = await fetch('/api/expenses');
+            const data = await res.json();
+            setExpenses(data);
+        } catch (error) {
+            console.error('Failed to fetch expenses', error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const categoryColors: Record<string, string> = {
+        Port: 'bg-indigo-50 text-indigo-600',
+        Customs: 'bg-purple-50 text-purple-600',
+        Transport: 'bg-blue-50 text-blue-600',
+        Labour: 'bg-orange-50 text-orange-600',
+        Office: 'bg-gray-50 text-gray-600',
+        Misc: 'bg-rose-50 text-rose-600',
+    };
+
+    const filteredExpenses = expenses.filter(exp =>
+        exp.vendor_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        exp.category.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
+    return (
+        <div className="space-y-6">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                <div className="relative flex-1 max-w-md">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
+                    <input
+                        type="text"
+                        placeholder="Search by vendor or category..."
+                        className="w-full pl-10 pr-4 py-3 bg-white border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-rose-500 transition-all shadow-sm"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                </div>
+                <button
+                    className="flex items-center justify-center space-x-2 px-6 py-3 bg-rose-600 text-white rounded-xl font-semibold hover:bg-rose-700 transition-all shadow-lg shadow-rose-200"
+                >
+                    <Plus className="h-5 w-5" />
+                    <span>Record Expense</span>
+                </button>
+            </div>
+
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                        <thead className="bg-gray-50 border-b border-gray-100">
+                            <tr>
+                                <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Date</th>
+                                <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Category</th>
+                                <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Vendor</th>
+                                <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider">Amount</th>
+                                <th className="px-6 py-4 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-50">
+                            {loading ? (
+                                <tr>
+                                    <td colSpan={5} className="px-6 py-10 text-center">
+                                        <Loader2 className="h-8 w-8 animate-spin text-rose-600 mx-auto" />
+                                    </td>
+                                </tr>
+                            ) : filteredExpenses.length === 0 ? (
+                                <tr>
+                                    <td colSpan={5} className="px-6 py-10 text-center text-gray-500">
+                                        No expense records found.
+                                    </td>
+                                </tr>
+                            ) : (
+                                filteredExpenses.map((expense) => (
+                                    <tr key={expense._id} className="hover:bg-gray-50 transition-colors group">
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center text-sm font-medium text-gray-900">
+                                                <Calendar className="h-4 w-4 text-gray-400 mr-2" />
+                                                {formatDate(expense.expense_date)}
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className={cn(
+                                                'px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider',
+                                                categoryColors[expense.category] || categoryColors.Misc
+                                            )}>
+                                                <Tag className="h-3 w-3 inline mr-1" />
+                                                {expense.category}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <div className="flex items-center">
+                                                <div className="h-8 w-8 rounded-full bg-gray-100 flex items-center justify-center mr-3">
+                                                    <User className="h-4 w-4 text-gray-500" />
+                                                </div>
+                                                <p className="font-semibold text-gray-900 text-sm">{expense.vendor_name}</p>
+                                            </div>
+                                        </td>
+                                        <td className="px-6 py-4">
+                                            <span className="text-lg font-bold text-rose-600">
+                                                {formatCurrency(expense.amount)}
+                                            </span>
+                                        </td>
+                                        <td className="px-6 py-4 text-right">
+                                            <div className="flex justify-end">
+                                                <button className="p-2 text-gray-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all">
+                                                    <TrendingDown className="h-4 w-4" />
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                ))
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    );
+}

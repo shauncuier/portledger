@@ -1,36 +1,189 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ClearLedger
 
-## Getting Started
+**Production-Ready Financial Management System for Clearing & Forwarding Businesses**
 
-First, run the development server:
+A comprehensive, secure, and scalable financial management system built with Next.js 16, MongoDB, and TypeScript. Designed for daily business operations handling real money with accuracy, security, and maintainability.
 
+---
+
+## 🚀 Tech Stack
+
+| Layer | Technology |
+|-------|------------|
+| Framework | Next.js 16 (App Router) |
+| Language | TypeScript |
+| Database | MongoDB (Mongoose ODM) |
+| Authentication | NextAuth.js (JWT) |
+| Validation | Zod |
+| Styling | Tailwind CSS |
+| Charts | Recharts |
+| Icons | Lucide React |
+
+---
+
+## 📦 Getting Started
+
+### 1. Install Dependencies
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 2. Configure Environment
+Create a `.env.local` file based on `.env.example`:
+```env
+MONGODB_URI=mongodb+srv://your_connection_string
+NEXTAUTH_URL=http://localhost:3000
+NEXTAUTH_SECRET=your_random_secret_at_least_32_characters
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### 3. Seed the Database
+Run the seed script to create the initial owner account:
+```bash
+node scripts/seed.js
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### 4. Start Development Server
+```bash
+npm run dev
+```
 
-## Learn More
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🔐 Test User Accounts
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Use these credentials to test different user roles:
 
-## Deploy on Vercel
+| Role | Email | Password | Access Level |
+|------|-------|----------|--------------|
+| **Owner** | `admin@clearledger.com` | `admin123` | Full system access, user management |
+| **Accountant** | `accountant@clearledger.com` | `account123` | Financial operations, reports |
+| **Staff** | `staff@clearledger.com` | `staff123` | Data entry (clients, invoices) |
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+> ⚠️ **Note**: Only the Owner account is created by the seed script. You can create Accountant and Staff accounts from the User Management section after logging in as Owner.
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+## 📁 Project Structure
+
+```
+clearledger/
+├── app/
+│   ├── (auth)/login/           # Authentication pages
+│   ├── (dashboard)/            # Protected dashboard routes
+│   │   ├── dashboard/          # Main dashboard
+│   │   ├── clients/            # Client management
+│   │   ├── invoices/           # Invoice management
+│   │   ├── income/             # Income tracking
+│   │   ├── expenses/           # Expense tracking
+│   │   └── reports/            # Financial reports
+│   ├── api/                    # API routes
+│   │   ├── auth/[...nextauth]/ # NextAuth endpoints
+│   │   ├── clients/            # Client CRUD
+│   │   ├── invoices/           # Invoice CRUD
+│   │   ├── income/             # Income CRUD
+│   │   ├── expenses/           # Expense CRUD
+│   │   ├── reports/            # Report generation
+│   │   └── users/              # User management
+│   └── components/             # React components
+├── lib/
+│   ├── db.ts                   # MongoDB connection
+│   ├── auth.ts                 # NextAuth configuration
+│   ├── auth-utils.ts           # Authorization helpers
+│   ├── permissions.ts          # RBAC utilities
+│   └── utils.ts                # Common utilities
+├── models/                     # Mongoose schemas
+│   ├── User.ts
+│   ├── Client.ts
+│   ├── Invoice.ts
+│   ├── Income.ts
+│   └── Expense.ts
+├── services/                   # Business logic layer
+│   ├── client.service.ts
+│   ├── invoice.service.ts
+│   ├── income.service.ts
+│   ├── expense.service.ts
+│   ├── report.service.ts
+│   └── user.service.ts
+├── validators/                 # Zod schemas
+│   ├── client.schema.ts
+│   ├── invoice.schema.ts
+│   ├── income.schema.ts
+│   └── expense.schema.ts
+├── proxy.ts                    # Next.js 16 request proxy
+└── scripts/
+    └── seed.js                 # Database seeding script
+```
+
+---
+
+## 🔒 Security Features
+
+- **JWT-based Authentication** via NextAuth.js
+- **Role-Based Access Control (RBAC)** with Owner, Accountant, and Staff roles
+- **Server-side Authorization** in API routes (not just proxy)
+- **Zod Validation** on all API endpoints
+- **Soft Delete** for all financial records (audit trail)
+- **Password Hashing** with bcrypt
+
+---
+
+## 📊 Core Modules
+
+### Dashboard
+- KPI cards (Income, Expense, Profit, Outstanding)
+- Income vs Expense chart
+- Top outstanding receivables
+
+### Client Management
+- Full CRUD operations
+- Client-wise financial summary
+- Status tracking (active/inactive)
+
+### Invoice Management
+- Auto-generated invoice numbers (INV-00001)
+- Line items with quantity and rate
+- Tax and discount support
+- Status tracking (Unpaid → Partial → Paid)
+- Immutable after payment (business rule)
+
+### Income Tracking
+- Linked to invoices (mandatory)
+- Multiple payments per invoice
+- Auto-update invoice status
+- Overpayment prevention
+
+### Expense Tracking
+- Categorized expenses (Port, Customs, Transport, Labour, Office, Misc)
+- Vendor tracking
+- Payment method recording
+
+### Reports
+- Profit & Loss Statement
+- Outstanding Receivables
+- Monthly Income/Expense Trends
+- Client Statements
+
+---
+
+## 🛠️ Scripts
+
+| Script | Description |
+|--------|-------------|
+| `npm run dev` | Start development server |
+| `npm run build` | Build for production |
+| `npm run start` | Start production server |
+| `node scripts/seed.js` | Seed initial owner account |
+
+---
+
+## 📄 License
+
+This project is proprietary software built for C&F business operations.
+
+---
+
+## 👤 Author
+
+Built with precision for real-world financial operations.
