@@ -38,15 +38,25 @@ export const authOptions: NextAuthOptions = {
                     name: user.name,
                     email: user.email,
                     role: user.role,
+                    avatar: user.avatar || '',
                 };
             },
         }),
     ],
     callbacks: {
-        async jwt({ token, user }: { token: any; user: any }) {
+        async jwt({ token, user, trigger }: { token: any; user: any; trigger?: string }) {
             if (user) {
                 token.role = user.role;
                 token.id = user.id;
+                token.avatar = user.avatar;
+            }
+            // Refresh avatar from database on session update
+            if (trigger === 'update') {
+                await dbConnect();
+                const dbUser = await User.findById(token.id);
+                if (dbUser) {
+                    token.avatar = dbUser.avatar || '';
+                }
             }
             return token;
         },
@@ -54,6 +64,7 @@ export const authOptions: NextAuthOptions = {
             if (session.user) {
                 session.user.role = token.role;
                 session.user.id = token.id;
+                session.user.avatar = token.avatar;
             }
             return session;
         },

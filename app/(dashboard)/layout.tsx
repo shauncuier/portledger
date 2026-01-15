@@ -150,14 +150,19 @@ export default function DashboardLayout({
                             'flex items-center p-3 rounded-xl bg-white/5',
                             !isSidebarOpen && 'justify-center'
                         )}>
-                            <div className="h-10 w-10 rounded-full overflow-hidden shadow-lg border border-white/20">
-                                <Image
-                                    src="/avatar.png"
-                                    alt="Avatar"
-                                    width={40}
-                                    height={40}
-                                    className="w-full h-full object-cover"
-                                />
+                            <div className="h-10 w-10 rounded-full overflow-hidden shadow-lg border border-white/20 bg-indigo-600 flex items-center justify-center">
+                                {session?.user && (session.user as { avatar?: string }).avatar ? (
+                                    // eslint-disable-next-line @next/next/no-img-element
+                                    <img
+                                        src={(session.user as { avatar?: string }).avatar}
+                                        alt="Avatar"
+                                        className="w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    <span className="text-white font-semibold text-sm">
+                                        {session?.user?.name?.charAt(0) || 'U'}
+                                    </span>
+                                )}
                             </div>
                             <div className={cn('ml-3 flex-1', !isSidebarOpen && 'hidden')}>
                                 <p className="text-sm font-semibold truncate">{session?.user?.name || 'User'}</p>
@@ -203,14 +208,19 @@ export default function DashboardLayout({
                                 onClick={() => setIsProfileOpen(!isProfileOpen)}
                                 className="flex items-center space-x-3 p-2 rounded-xl hover:bg-slate-100 transition-colors"
                             >
-                                <div className="h-10 w-10 rounded-full overflow-hidden shadow-lg shadow-indigo-200 border border-slate-200">
-                                    <Image
-                                        src="/avatar.png"
-                                        alt="Avatar"
-                                        width={40}
-                                        height={40}
-                                        className="w-full h-full object-cover"
-                                    />
+                                <div className="h-10 w-10 rounded-full overflow-hidden shadow-lg shadow-indigo-200 border border-slate-200 bg-indigo-600 flex items-center justify-center">
+                                    {session?.user && (session.user as { avatar?: string }).avatar ? (
+                                        // eslint-disable-next-line @next/next/no-img-element
+                                        <img
+                                            src={(session.user as { avatar?: string }).avatar}
+                                            alt="Avatar"
+                                            className="w-full h-full object-cover"
+                                        />
+                                    ) : (
+                                        <span className="text-white font-semibold text-sm">
+                                            {session?.user?.name?.charAt(0) || 'U'}
+                                        </span>
+                                    )}
                                 </div>
                                 <div className="text-left hidden sm:block">
                                     <p className="text-sm font-semibold text-slate-800">{session?.user?.name}</p>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import {
     User,
@@ -27,18 +27,32 @@ const tabs = [
 ];
 
 export default function SettingsPage() {
-    const { data: session } = useSession();
+    const { data: session, status, update } = useSession();
     const [activeTab, setActiveTab] = useState('profile');
     const [saving, setSaving] = useState(false);
     const [saved, setSaved] = useState(false);
+    const [uploading, setUploading] = useState(false);
 
     const [profile, setProfile] = useState({
-        name: session?.user?.name || '',
-        email: session?.user?.email || '',
+        name: '',
+        email: '',
         phone: '+880 1234-567890',
-        role: session && session.user && 'role' in session.user ? (session.user as { role?: string }).role || 'staff' : 'staff',
-        avatar: (session?.user as { avatar?: string })?.avatar || '',
+        role: 'staff',
+        avatar: '',
     });
+
+    // Update profile when session loads
+    useEffect(() => {
+        if (session?.user) {
+            setProfile((prev) => ({
+                ...prev,
+                name: session.user?.name || '',
+                email: session.user?.email || '',
+                role: (session.user as { role?: string }).role || 'staff',
+                avatar: (session.user as { avatar?: string }).avatar || '',
+            }));
+        }
+    }, [session]);
 
     const [company, setCompany] = useState({
         name: 'ClearLedger Business',
@@ -66,6 +80,15 @@ export default function SettingsPage() {
         setSaved(true);
         setTimeout(() => setSaved(false), 3000);
     };
+
+    // Show loading while session is being fetched
+    if (status === 'loading') {
+        return (
+            <div className="flex items-center justify-center min-h-[400px]">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+            </div>
+        );
+    }
 
     return (
         <div className="space-y-6">
@@ -134,26 +157,45 @@ export default function SettingsPage() {
                                                     alert('File size exceeds 2MB.');
                                                     return;
                                                 }
-                                                const formData = new FormData();
-                                                formData.append('avatar', file);
-                                                if (session && session.user && 'id' in session.user) {
-                                                    const res = await fetch(`/api/users/${(session.user as { id?: string }).id}`, {
-                                                        method: 'PATCH',
-                                                        body: formData,
-                                                    });
-                                                    if (res.ok) {
-                                                        const user = await res.json();
-                                                        setProfile((p) => ({ ...p, avatar: user.avatar }));
+
+                                                setUploading(true);
+                                                try {
+                                                    const formData = new FormData();
+                                                    formData.append('avatar', file);
+
+                                                    if (session && session.user && 'id' in session.user) {
+                                                        const res = await fetch(`/api/users/${(session.user as { id?: string }).id}`, {
+                                                            method: 'PATCH',
+                                                            body: formData,
+                                                        });
+
+                                                        if (res.ok) {
+                                                            const user = await res.json();
+                                                            setProfile((p) => ({ ...p, avatar: user.avatar }));
+                                                            // Update the session to reflect new avatar
+                                                            await update();
+                                                        } else {
+                                                            const error = await res.json();
+                                                            alert(error.error || 'Failed to upload avatar');
+                                                        }
                                                     }
+                                                } catch (error) {
+                                                    console.error('Avatar upload error:', error);
+                                                    alert('Failed to upload avatar. Please try again.');
+                                                } finally {
+                                                    setUploading(false);
+                                                    // Reset the input so the same file can be selected again
+                                                    e.target.value = '';
                                                 }
                                             }}
                                         />
                                         <button
-                                            className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors"
+                                            className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-sm font-medium hover:bg-indigo-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                                             onClick={() => document.getElementById('avatar-upload')?.click()}
                                             type="button"
+                                            disabled={uploading}
                                         >
-                                            Change Photo
+                                            {uploading ? 'Uploading...' : 'Change Photo'}
                                         </button>
                                         <p className="text-xs text-slate-500 mt-2">JPG, PNG or GIF. Max 2MB.</p>
                                     </div>
