@@ -53,7 +53,12 @@ export default function UsersPage() {
 
     // Check if user is owner
     useEffect(() => {
-        if (session?.user?.role !== 'owner') {
+        if (
+            !session ||
+            !session.user ||
+            !('role' in session.user) ||
+            (session.user as { role?: string }).role !== 'owner'
+        ) {
             router.push('/dashboard');
         }
     }, [session, router]);
@@ -142,7 +147,12 @@ export default function UsersPage() {
         u.email?.toLowerCase().includes(searchTerm.toLowerCase())
     );
 
-    if (session?.user?.role !== 'owner') {
+    if (
+        !session ||
+        !session.user ||
+        !('role' in session.user) ||
+        (session.user as { role?: string }).role !== 'owner'
+    ) {
         return (
             <div className="flex items-center justify-center h-64">
                 <div className="text-center">

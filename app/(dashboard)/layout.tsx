@@ -97,7 +97,15 @@ export default function DashboardLayout({
                             </button>
                         )}
                         {sidebarItems
-                            .filter((item) => !item.ownerOnly || session?.user?.role === 'owner')
+                            .filter((item) =>
+                                !item.ownerOnly ||
+                                (
+                                    session &&
+                                    session.user &&
+                                    'role' in session.user &&
+                                    (session.user as { role?: string }).role === 'owner'
+                                )
+                            )
                             .map((item) => {
                                 const isActive = pathname === item.href || (item.href !== '/dashboard' && pathname.startsWith(item.href));
                                 return (
@@ -153,7 +161,7 @@ export default function DashboardLayout({
                             </div>
                             <div className={cn('ml-3 flex-1', !isSidebarOpen && 'hidden')}>
                                 <p className="text-sm font-semibold truncate">{session?.user?.name || 'User'}</p>
-                                <p className="text-xs text-indigo-300 capitalize">{session?.user?.role || 'Staff'}</p>
+                                <p className="text-xs text-indigo-300 capitalize">{session && session.user && 'role' in session.user ? (session.user as { role?: string }).role || 'Staff' : 'Staff'}</p>
                             </div>
                         </div>
                         <button

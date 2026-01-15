@@ -9,7 +9,7 @@ export async function GET(
     { params }: { params: Promise<{ id: string }> }
 ) {
     const session = await getServerSession(authOptions);
-    if (!session || session.user.role !== 'owner') {
+    if (!session || !session.user || (session.user as { role?: string }).role !== 'owner') {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
@@ -31,7 +31,7 @@ export async function PUT(
     { params }: { params: Promise<{ id: string }> }
 ) {
     const session = await getServerSession(authOptions);
-    if (!session || session.user.role !== 'owner') {
+    if (!session || !session.user || (session.user as { role?: string }).role !== 'owner') {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
@@ -41,10 +41,10 @@ export async function PUT(
         const body = await req.json();
 
         // Prevent changing own role or status
-        if (id === session.user.id) {
-            delete body.role;
-            delete body.status;
-        }
+    if (session && session.user && id === (session.user as { id?: string }).id) {
+        delete body.role;
+        delete body.status;
+    }
 
         const user = await User.findByIdAndUpdate(
             id,
@@ -67,14 +67,14 @@ export async function DELETE(
     { params }: { params: Promise<{ id: string }> }
 ) {
     const session = await getServerSession(authOptions);
-    if (!session || session.user.role !== 'owner') {
+    if (!session || !session.user || (session.user as { role?: string }).role !== 'owner') {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
     const { id } = await params;
 
     // Prevent deleting self
-    if (id === session.user.id) {
+    if (session && session.user && id === (session.user as { id?: string }).id) {
         return NextResponse.json({ error: 'Cannot delete your own account' }, { status: 400 });
     }
 

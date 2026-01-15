@@ -13,7 +13,10 @@ export async function requireAuth(allowedRoles?: string[]) {
         return { error: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }), session: null };
     }
 
-    if (allowedRoles && !allowedRoles.includes(session.user.role)) {
+    if (
+        allowedRoles &&
+        (!session.user || !(session.user as { role?: string }).role || !allowedRoles.includes((session.user as { role?: string }).role!))
+    ) {
         return { error: NextResponse.json({ error: 'Forbidden' }, { status: 403 }), session: null };
     }
 
@@ -24,5 +27,10 @@ export async function requireAuth(allowedRoles?: string[]) {
  * Check if current user has one of the required roles
  */
 export function hasRole(session: any, roles: string[]) {
-    return session?.user?.role && roles.includes(session.user.role);
+    return (
+        session &&
+        session.user &&
+        typeof (session.user as { role?: string }).role === 'string' &&
+        roles.includes((session.user as { role: string }).role)
+    );
 }

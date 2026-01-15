@@ -36,7 +36,7 @@ export default function SettingsPage() {
         name: session?.user?.name || '',
         email: session?.user?.email || '',
         phone: '+880 1234-567890',
-        role: session?.user?.role || 'staff',
+        role: session && session.user && 'role' in session.user ? (session.user as { role?: string }).role || 'staff' : 'staff',
     });
 
     const [company, setCompany] = useState({

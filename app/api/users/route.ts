@@ -5,7 +5,7 @@ import { UserService } from '@/services/user.service';
 
 export async function GET() {
     const session = await getServerSession(authOptions);
-    if (!session || session.user.role !== 'owner') {
+    if (!session || !session.user || (session.user as { role?: string }).role !== 'owner') {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
@@ -19,7 +19,7 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
     const session = await getServerSession(authOptions);
-    if (!session || session.user.role !== 'owner') {
+    if (!session || !session.user || (session.user as { role?: string }).role !== 'owner') {
         return NextResponse.json({ error: 'Unauthorized' }, { status: 403 });
     }
 
