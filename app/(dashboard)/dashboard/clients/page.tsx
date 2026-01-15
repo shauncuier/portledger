@@ -35,7 +35,7 @@ const emptyClient = {
     phone: '',
     address: '',
     opening_balance: 0,
-    status: 'active' as const,
+    status: 'active' as 'active' | 'inactive',
 };
 
 export default function ClientsPage() {
