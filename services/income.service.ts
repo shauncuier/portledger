@@ -27,7 +27,13 @@ export class IncomeService {
                 throw new Error(`Payment amount (${data.amount}) exceeds remaining balance (${remainingBalance})`);
             }
 
-            const income = new Income(data);
+            // Derive client_id from invoice if not provided
+            const incomeData = {
+                ...data,
+                client_id: data.client_id || invoice.client_id.toString(),
+            };
+
+            const income = new Income(incomeData);
             await income.save({ session });
 
             // Update invoice paid amount and status

@@ -8,6 +8,11 @@ export class ExpenseService {
         return Expense.find({ deletedAt: null }).sort({ expense_date: -1 });
     }
 
+    static async getExpenseById(id: string) {
+        await dbConnect();
+        return Expense.findOne({ _id: id, deletedAt: null });
+    }
+
     static async createExpense(data: ExpenseInput) {
         await dbConnect();
         const expense = new Expense(data);
